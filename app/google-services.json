@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "402421332426",
+    "project_id": "pesawisecom",
+    "storage_bucket": "pesawisecom.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:402421332426:android:244871a1bb38b6f0ce3733",
+        "android_client_info": {
+          "package_name": "com.timothy.pesawise"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDlYTyPP0OpG0FdTDD9QMonrDbaScIpmNM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

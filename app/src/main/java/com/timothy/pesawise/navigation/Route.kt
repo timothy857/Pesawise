@@ -1,0 +1,22 @@
+package com.timothy.pesawise.navigation
+
+
+const val ROUTE_LOGIN="Login"
+const val ROUTE_STUDENT_REGISTER="StudentRegister"
+const val ROUTE_BUSINESS_REGISTER="BusinessRegister"
+const val ROUTE_SALARY_REGISTER="SalaryRegister"
+const val ROUTE_REG_DASHBOARD="RegisterDashboard"
+const val ROUTE_SPLASH="SplashScreen"
+const val ROUTE_GET_STARTED="GetStarted"
+const val ROUTE_SALARY_DASHBOARD="SalaryDashboard"
+const val ROUTE_BUSINESS_DASHBOARD="BusinessDashboard"
+const val ROUTE_STUDENT_DASHBOARD="StudentDashboard"
+const val ROUTE_ADD_BUSINESS_EXPENSE="AddBusinessExpense"
+const val ROUTE_HOME="SalaryDashboard"
+const val ROUTE_ADD_EXPENSE="add_expense"
+const val ROUTE_ADD_INCOME="add_income"
+const val ROUTE_REPORTS="reports"
+const val ROUTE_GOALS="goals"
+const val ROUTE_HISTORY="history"
+const val ROUTE_PROFILE="profile"
+const val ROUTE_DASHBOARD="dashboard"

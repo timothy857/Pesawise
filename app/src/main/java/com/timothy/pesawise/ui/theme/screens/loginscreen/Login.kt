@@ -229,7 +229,8 @@ fun LoginScreen(
 
                     // Login Button with Gradient
                     Button(
-                        onClick = { authViewModel.login(email.trim(), password.trim()) },
+                        onClick = { authViewModel.login(email.trim(), password.trim(), viewModel)
+                             },
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(58.dp),

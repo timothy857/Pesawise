@@ -59,6 +59,8 @@ dependencies {
     implementation(libs.firebase.database)
     implementation(libs.firebase.firestore)
     implementation(libs.googleid)
+    implementation(libs.mpandroidchart)
+    implementation(libs.androidx.core.splashscreen)
     testImplementation(libs.junit)
     implementation(libs.androidx.navigation.compose.android)
     androidTestImplementation(platform(libs.androidx.compose.bom))

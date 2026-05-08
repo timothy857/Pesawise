@@ -25,17 +25,24 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.timothy.pesawise.models.AccountType
+import com.timothy.pesawise.models.THEMES
 import com.timothy.pesawise.models.User
 
+import com.timothy.pesawise.ui.theme.screens.GetStarted.GetStartedScreen
+import com.timothy.pesawise.ui.theme.screens.Registerscreen.BusinessRegisterScreen
+import com.timothy.pesawise.ui.theme.screens.Registerscreen.RegistrationDashboard
+import com.timothy.pesawise.ui.theme.screens.Registerscreen.SalaryRegisterScreen
+import com.timothy.pesawise.ui.theme.screens.Registerscreen.StudentRegisterscreen
 import com.timothy.pesawise.ui.theme.screens.SplashScreen.SplashScreen
 import com.timothy.pesawise.ui.theme.screens.loginscreen.LoginScreen
 import com.timothy.pesawise.ui.theme.screens.Maindashboard.StudentAccount
 import com.timothy.pesawise.ui.theme.screens.Maindashboard.BusinessAccount
 import com.timothy.pesawise.ui.theme.screens.Maindashboard.SalaryEarnerAccount
-import com.timothy.pesawise.ui.theme.screens.Maindashboard.AddExpenseScreen
+import com.timothy.pesawise.ui.theme.screens.Maindashboard.AddBusinessExpenseScreen
+import com.timothy.pesawise.ui.theme.screens.AddExpense.AddExpencesScreen
 import com.timothy.pesawise.ui.theme.screens.Maindashboard.AddIncomeScreen
-import com.timothy.pesawise.ui.theme.screens.Maindashboard.ReportsScreen
-import com.timothy.pesawise.ui.theme.screens.Maindashboard.GoalsScreen
+import com.timothy.pesawise.ui.theme.screens.ReportsScreen.ReportsScreen
+import com.timothy.pesawise.ui.theme.screens.GoalsScreen.GoalsScreen
 import com.timothy.pesawise.ui.theme.screens.Maindashboard.HistoryScreen
 import com.timothy.pesawise.ui.theme.screens.Maindashboard.ProfileScreen
 import com.timothy.pesawise.viewmodel.AppViewModel
@@ -49,21 +56,10 @@ fun PesaNavGraph(vm: AppViewModel = viewModel()) {
     val toast by vm.toastMsg.collectAsStateWithLifecycle()
 
     // Resolve theme colours for current user
-    val accentColor = when (user?.type) {
-        AccountType.Business -> Color(0xFF6C5CE7)
-        AccountType.Student -> Color(0xFF0984E3)
-        else -> Color(0xFF00B894)
-    }
-    val startColor = when (user?.type) {
-        AccountType.Business -> Color(0xFF6C5CE7)
-        AccountType.Student -> Color(0xFF0984E3)
-        else -> Color(0xFF00B894)
-    }
-    val endColor = when (user?.type) {
-        AccountType.Business -> Color(0xFF5B4CC4)
-        AccountType.Student -> Color(0xFF0873C4)
-        else -> Color(0xFF009B7B)
-    }
+    val theme = THEMES[user?.type ?: AccountType.Salaried]!!
+    val accentColor = Color(android.graphics.Color.parseColor(theme.accentHex))
+    val startColor  = Color(android.graphics.Color.parseColor(theme.gradientStart))
+    val endColor    = Color(android.graphics.Color.parseColor(theme.gradientEnd))
 
     NavHost(navController = nav, startDestination = ROUTE_SPLASH) {
 
@@ -71,8 +67,44 @@ fun PesaNavGraph(vm: AppViewModel = viewModel()) {
             SplashScreen(navController = nav)
         }
 
+        composable(ROUTE_GET_STARTED) {
+            GetStartedScreen(navController = nav)
+        }
+
         composable(ROUTE_LOGIN) {
             LoginScreen(navController = nav, viewModel = vm)
+        }
+
+        composable(ROUTE_REG_DASHBOARD) {
+            RegistrationDashboard(navController = nav)
+        }
+
+        composable(ROUTE_STUDENT_REGISTER) {
+            StudentRegisterscreen(navController = nav, viewModel = vm)
+        }
+
+        composable(ROUTE_BUSINESS_REGISTER) {
+            BusinessRegisterScreen(navController = nav, viewModel = vm)
+        }
+
+        composable(ROUTE_SALARY_REGISTER) {
+            SalaryRegisterScreen(navController = nav, viewModel = vm)
+        }
+
+        composable(ROUTE_SALARY_DASHBOARD) {
+            SalaryEarnerAccount(navController = nav, viewModel = vm)
+        }
+
+        composable(ROUTE_BUSINESS_DASHBOARD) {
+            BusinessAccount(navController = nav, viewModel = vm)
+        }
+
+        composable(ROUTE_STUDENT_DASHBOARD) {
+            StudentAccount(navController = nav, viewModel = vm)
+        }
+
+        composable(ROUTE_ADD_BUSINESS_EXPENSE) {
+            AddBusinessExpenseScreen(navController = nav, viewModel = vm)
         }
 
         composable(ROUTE_DASHBOARD) {
@@ -85,10 +117,9 @@ fun PesaNavGraph(vm: AppViewModel = viewModel()) {
         }
 
         composable(ROUTE_ADD_EXPENSE) {
-            AddExpenseScreen(
-                vm = vm,
-                onBack = { nav.popBackStack() },
-                onSaved = { nav.popBackStack() }
+            AddExpencesScreen(
+                navController = nav,
+                viewModel = vm
             )
         }
 
@@ -119,8 +150,6 @@ fun PesaNavGraph(vm: AppViewModel = viewModel()) {
             GoalsScreen(
                 user = u,
                 accentColor = accentColor,
-                startColor = startColor,
-                endColor = endColor,
                 onBack = { nav.popBackStack() }
             )
         }

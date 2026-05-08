@@ -5,11 +5,14 @@ import android.widget.Toast
 import androidx.navigation.NavHostController
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
-import com.timothy.pesawise.navigation.ROUTE_DASHBOARD
 import com.timothy.pesawise.navigation.ROUTE_LOGIN
 import com.timothy.pesawise.navigation.ROUTE_SALARY_DASHBOARD
 import com.timothy.pesawise.navigation.ROUTE_BUSINESS_DASHBOARD
 import com.timothy.pesawise.navigation.ROUTE_STUDENT_DASHBOARD
+
+import com.timothy.pesawise.models.AccountType
+import com.timothy.pesawise.models.User
+import com.timothy.pesawise.viewmodel.AppViewModel
 
 class AuthViewModel(var navController: NavHostController, var context: Context) {
     private var mAuth: FirebaseAuth = FirebaseAuth.getInstance()
@@ -48,7 +51,7 @@ class AuthViewModel(var navController: NavHostController, var context: Context) 
         }
     }
 
-    fun login(email: String, password: String) {
+    fun login(email: String, password: String, appViewModel: AppViewModel) {
         if (email.isBlank() || password.isBlank()) {
             Toast.makeText(context, "Please fill all fields", Toast.LENGTH_SHORT).show()
         } else {
@@ -56,39 +59,49 @@ class AuthViewModel(var navController: NavHostController, var context: Context) 
                 if (task.isSuccessful) {
                     val userId = mAuth.currentUser?.uid
                     if (userId != null) {
-                        // Fetch user type from database
-                        mDatabase.getReference("users").child(userId).child("accountType")
+                        // Fetch user data from database
+                        mDatabase.getReference("users").child(userId)
                             .get().addOnSuccessListener { snapshot ->
-                                val accountType = snapshot.value as? String
+                                val fullname = snapshot.child("fullname").value as? String ?: "User"
+                                val accountTypeStr = snapshot.child("accountType").value as? String ?: "Salaried"
+                                val emailAddr = snapshot.child("email").value as? String ?: email
+                                
+                                val accountType = when (accountTypeStr) {
+                                    "Business" -> AccountType.Business
+                                    "Student" -> AccountType.Student
+                                    else -> AccountType.Salaried
+                                }
+
+                                // Update AppViewModel with the logged-in user
+                                val loggedInUser = User(
+                                    name = fullname,
+                                    email = emailAddr,
+                                    password = "", // Don't store password locally
+                                    type = accountType
+                                )
+                                appViewModel.setCurrentUser(loggedInUser)
+
                                 Toast.makeText(context, "Login successful", Toast.LENGTH_SHORT).show()
                                 
                                 when (accountType) {
-                                    "Business" -> {
+                                    AccountType.Business -> {
                                         navController.navigate(ROUTE_BUSINESS_DASHBOARD) {
                                             popUpTo(ROUTE_LOGIN) { inclusive = true }
                                         }
                                     }
-                                    "Student" -> {
+                                    AccountType.Student -> {
                                         navController.navigate(ROUTE_STUDENT_DASHBOARD) {
                                             popUpTo(ROUTE_LOGIN) { inclusive = true }
                                         }
                                     }
-                                    "Salaried" -> {
+                                    AccountType.Salaried -> {
                                         navController.navigate(ROUTE_SALARY_DASHBOARD) {
-                                            popUpTo(ROUTE_LOGIN) { inclusive = true }
-                                        }
-                                    }
-                                    else -> {
-                                        navController.navigate(ROUTE_DASHBOARD) {
                                             popUpTo(ROUTE_LOGIN) { inclusive = true }
                                         }
                                     }
                                 }
                             }.addOnFailureListener {
-                                // Fallback to default dashboard if database fetch fails
-                                navController.navigate(ROUTE_DASHBOARD) {
-                                    popUpTo(ROUTE_LOGIN) { inclusive = true }
-                                }
+                                Toast.makeText(context, "Failed to fetch user data", Toast.LENGTH_SHORT).show()
                             }
                     }
                 } else {

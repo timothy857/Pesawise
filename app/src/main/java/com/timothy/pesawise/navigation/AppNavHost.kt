@@ -20,15 +20,16 @@ import com.timothy.pesawise.ui.theme.screens.loginscreen.LoginScreen
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.timothy.pesawise.models.AccountType
+import com.timothy.pesawise.models.THEMES
 import com.timothy.pesawise.models.User
 import androidx.compose.ui.graphics.Color
 
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.timothy.pesawise.ui.theme.screens.Maindashboard.AddExpenseScreen
+import com.timothy.pesawise.ui.theme.screens.AddExpense.AddExpencesScreen
 import com.timothy.pesawise.ui.theme.screens.Maindashboard.AddIncomeScreen
-import com.timothy.pesawise.ui.theme.screens.Maindashboard.GoalsScreen
+import com.timothy.pesawise.ui.theme.screens.GoalsScreen.GoalsScreen
 import com.timothy.pesawise.ui.theme.screens.Maindashboard.HistoryScreen
-import com.timothy.pesawise.ui.theme.screens.Maindashboard.ReportsScreen
+import com.timothy.pesawise.ui.theme.screens.ReportsScreen.ReportsScreen
 import com.timothy.pesawise.ui.theme.screens.Maindashboard.ProfileScreen
 import com.timothy.pesawise.viewmodel.AppViewModel
 
@@ -91,20 +92,16 @@ fun AppNavHost(
         }
 
         composable(ROUTE_ADD_EXPENSE) {
-            AddExpenseScreen(
-                vm          = viewModel,
-                onBack      = { navController.popBackStack() },
-                onSaved     = { navController.popBackStack() }
+            AddExpencesScreen(
+                navController = navController,
+                viewModel     = viewModel
             )
         }
 
         composable(ROUTE_ADD_INCOME) {
             val u = user ?: return@composable
-            val accentColor = when (u.type) {
-                AccountType.Business -> Color(0xFF6C5CE7)
-                AccountType.Student  -> Color(0xFF0984E3)
-                else                 -> Color(0xFF00B894)
-            }
+            val theme = THEMES[u.type]!!
+            val accentColor = Color(android.graphics.Color.parseColor(theme.accentHex))
             AddIncomeScreen(
                 user        = u,
                 vm          = viewModel,
@@ -128,12 +125,10 @@ fun AppNavHost(
 
         composable(ROUTE_GOALS) {
             val u = user ?: return@composable
-            val (accentColor, startColor, endColor) = getColorsForUser(u.type)
+            val (accentColor, _, _) = getColorsForUser(u.type)
             GoalsScreen(
                 user        = u,
                 accentColor = accentColor,
-                startColor  = startColor,
-                endColor    = endColor,
                 onBack      = { navController.popBackStack() }
             )
         }
@@ -170,10 +165,11 @@ fun AppNavHost(
 }
 
 fun getColorsForUser(type: AccountType): Triple<Color, Color, Color> {
-    return when (type) {
-        AccountType.Business -> Triple(Color(0xFF6C5CE7), Color(0xFF6C5CE7), Color(0xFF5B4CC4))
-        AccountType.Student  -> Triple(Color(0xFF0984E3), Color(0xFF0984E3), Color(0xFF0873C4))
-        else                 -> Triple(Color(0xFF00B894), Color(0xFF00B894), Color(0xFF009B7B))
-    }
+    val theme = THEMES[type]!!
+    return Triple(
+        Color(android.graphics.Color.parseColor(theme.accentHex)),
+        Color(android.graphics.Color.parseColor(theme.gradientStart)),
+        Color(android.graphics.Color.parseColor(theme.gradientEnd))
+    )
 }
 

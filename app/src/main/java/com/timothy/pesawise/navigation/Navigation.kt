@@ -45,6 +45,7 @@ import com.timothy.pesawise.ui.theme.screens.ReportsScreen.ReportsScreen
 import com.timothy.pesawise.ui.theme.screens.GoalsScreen.GoalsScreen
 import com.timothy.pesawise.ui.theme.screens.Maindashboard.HistoryScreen
 import com.timothy.pesawise.ui.theme.screens.ProfileScreen.ProfileScreen
+import com.timothy.pesawise.ui.theme.screens.SettingsScreen.SettingsScreen
 import com.timothy.pesawise.ui.theme.screens.Maindashboard.SalesScreen
 import com.timothy.pesawise.viewmodel.AppViewModel
 import kotlinx.coroutines.delay
@@ -189,7 +190,19 @@ fun PesaNavGraph(vm: AppViewModel = viewModel()) {
                 onLogout = {
                     vm.logout()
                     nav.navigate(ROUTE_LOGIN) { popUpTo(0) }
-                }
+                },
+                onSettings = { nav.navigate(ROUTE_SETTINGS) }
+            )
+        }
+
+        composable(ROUTE_SETTINGS) {
+            val u = user ?: return@composable
+            SettingsScreen(
+                user = u,
+                accentColor = accentColor,
+                startColor = startColor,
+                endColor = endColor,
+                onBack = { nav.popBackStack() }
             )
         }
     }

@@ -8,9 +8,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Email
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Phone
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -34,7 +32,8 @@ fun ProfileScreen(
     startColor: Color,
     endColor: Color,
     onBack: () -> Unit,
-    onLogout: () -> Unit
+    onLogout: () -> Unit,
+    onSettings: () -> Unit
 ) {
     var isEditing by remember { mutableStateOf(false) }
     var fullname by remember { mutableStateOf(user.fullname) }
@@ -53,19 +52,24 @@ fun ProfileScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 BackButton(onBack)
-                Text(
-                    text = if (isEditing) "Cancel" else "Edit",
-                    color = Color.White,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.clickable {
-                        if (isEditing) {
-                            fullname = user.fullname
-                            email = user.email
-                            phone = user.phone
-                        }
-                        isEditing = !isEditing
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    IconButton(onClick = onSettings) {
+                        Icon(Icons.Default.Settings, contentDescription = "Settings", tint = Color.White)
                     }
-                )
+                    Text(
+                        text = if (isEditing) "Cancel" else "Edit",
+                        color = Color.White,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.clickable {
+                            if (isEditing) {
+                                fullname = user.fullname
+                                email = user.email
+                                phone = user.phone
+                            }
+                            isEditing = !isEditing
+                        }
+                    )
+                }
             }
 
             Spacer(Modifier.height(16.dp))
@@ -198,6 +202,15 @@ fun ProfileScreen(
                             Text("Total Savings", color = MutedGray, fontSize = 12.sp)
                             Text(money(user.totalSavings), fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color(0xFF00C896))
                         }
+                    }
+                }
+
+                PesaCard(onClick = onSettings) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text("⚙️", fontSize = 18.sp)
+                        Spacer(Modifier.width(16.dp))
+                        Text("App Settings", fontWeight = FontWeight.Bold, fontSize = 14.sp, modifier = Modifier.weight(1f))
+                        Text("→", color = MutedGray)
                     }
                 }
             }

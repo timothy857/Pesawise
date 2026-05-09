@@ -203,8 +203,7 @@ fun HeaderSection(user: User) {
                     ) {
                         StatItem(label = "INCOME", value = "KES ${user.income}", color = Color(0xFF81C784))
                         StatItem(label = "EXPENSES", value = "KES ${user.expenses}", color = Color(0xFFE57373))
-                        val savingsRate = if (user.income > 0) ((user.balance / user.income) * 100).toInt() else 0
-                        StatItem(label = "SAVED", value = "$savingsRate%", color = Color(0xFFFFD54F))
+                        StatItem(label = "SAVINGS", value = "KES ${user.totalSavings}", color = Color(0xFFFFD54F))
                     }
                 }
             }

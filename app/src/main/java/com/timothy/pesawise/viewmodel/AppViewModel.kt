@@ -78,7 +78,7 @@ class AppViewModel : ViewModel() {
         _toastMsg.value = "✅ Expense saved! KES ${"%,.0f".format(amount)}"
     }
 
-    fun addIncome(amount: Double, category: String, note: String, icon: String) {
+    fun addIncome(amount: Double, category: String, note: String, icon: String, savingsAmount: Double = 0.0) {
         val tx = Transaction(
             id = System.currentTimeMillis(), type = TransactionType.Income,
             amount = amount, category = category, note = note,
@@ -88,11 +88,16 @@ class AppViewModel : ViewModel() {
         mutateUser { u ->
             u.copy(
                 income = u.income + amount,
-                balance = u.balance + amount,
+                balance = u.balance + (amount - savingsAmount),
+                totalSavings = u.totalSavings + savingsAmount,
                 transactions = listOf(tx) + u.transactions
             )
         }
-        _toastMsg.value = "💰 Income saved! KES ${"%,.0f".format(amount)}"
+        val msg = if (savingsAmount > 0) 
+            "💰 Income saved! KES ${"%,.0f".format(amount)} (Saved KES ${"%,.0f".format(savingsAmount)})"
+        else 
+            "💰 Income saved! KES ${"%,.0f".format(amount)}"
+        _toastMsg.value = msg
     }
 
     fun getAccounts(): List<User> = _accounts.value
@@ -101,4 +106,63 @@ class AppViewModel : ViewModel() {
     fun getProfit(u: User): Double = u.income - u.expenses
     fun getProfitMargin(u: User): Int = if (u.income == 0.0) 0 else ((u.income - u.expenses) / u.income * 100).toInt()
     fun getTotalOwed(u: User): Double = u.customerDebts.sumOf { it.amount }
+
+    fun addGoal(title: String, target: Double, icon: String, colorHex: String, deadline: String) {
+        val newGoal = Goal(
+            id = (System.currentTimeMillis() % Int.MAX_VALUE).toInt(),
+            title = title,
+            target = target,
+            saved = 0.0,
+            icon = icon,
+            colorHex = colorHex,
+            deadline = deadline
+        )
+        mutateUser { u ->
+            u.copy(goals = u.goals + newGoal)
+        }
+        _toastMsg.value = "🎯 Goal '$title' added!"
+    }
+
+    fun deleteGoal(goalId: Int) {
+        mutateUser { u ->
+            u.copy(goals = u.goals.filter { it.id != goalId })
+        }
+        _toastMsg.value = "🗑️ Goal deleted."
+    }
+
+    fun updateProfile(name: String, email: String, phone: String) {
+        mutateUser { u ->
+            u.copy(name = name, email = email, phone = phone)
+        }
+        _toastMsg.value = "👤 Profile updated successfully!"
+    }
+
+    fun addCustomerDebt(name: String, amount: Double, due: String) {
+        val newDebt = CustomerDebt(name, amount, due)
+        mutateUser { u ->
+            u.copy(customerDebts = u.customerDebts + newDebt)
+        }
+        _toastMsg.value = "💳 Added debt for $name: KES $amount"
+    }
+
+    fun addBusinessSale(itemName: String, quantity: Int, buyingPrice: Double, sellingPrice: Double) {
+        val newSale = BusinessSale(
+            itemName = itemName,
+            quantity = quantity,
+            buyingPrice = buyingPrice,
+            sellingPrice = sellingPrice,
+            date = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
+        )
+        mutateUser { u ->
+            u.copy(businessSales = listOf(newSale) + u.businessSales)
+        }
+        _toastMsg.value = "📦 Recorded sale of $itemName"
+    }
+
+    fun deleteBusinessSale(saleId: Long) {
+        mutateUser { u ->
+            u.copy(businessSales = u.businessSales.filter { it.id != saleId })
+        }
+        _toastMsg.value = "🗑️ Sale record deleted."
+    }
 }

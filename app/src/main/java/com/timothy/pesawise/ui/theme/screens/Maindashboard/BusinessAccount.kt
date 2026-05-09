@@ -10,14 +10,14 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -27,6 +27,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.timothy.pesawise.models.*
 import com.timothy.pesawise.viewmodel.AppViewModel
+import com.timothy.pesawise.ui.components.*
 import com.timothy.pesawise.ui.theme.*
 import com.timothy.pesawise.navigation.*
 
@@ -118,7 +119,13 @@ fun BusinessAccount(
             item { BusinessHeaderSection(user) }
             item { TodaySummarySection(user.todaySales, user.todayExpenses) }
             item { BusinessQuickActionsSection(navController) }
-            item { CustomersOweSection(user.customerDebts) }
+            item { ProfitCalculatorSection() }
+            item { 
+                CustomersOweSection(
+                    debts = user.customerDebts,
+                    onAddDebt = { name, amt, due -> viewModel.addCustomerDebt(name, amt, due) }
+                ) 
+            }
             item { StockValueSection(user.stockValue) }
             item { BusinessInsightSection() }
             item { RecentActivitySection(user.transactions) }
@@ -205,7 +212,7 @@ fun BusinessHeaderSection(user: User) {
                     ) {
                         BusinessStatItem(label = "REVENUE", value = "KES ${user.income}", color = BizAccent)
                         BusinessStatItem(label = "EXPENSES", value = "KES ${user.expenses}", color = BizExpense)
-                        BusinessStatItem(label = "PROFIT", value = "KES ${user.income - user.expenses}", color = BizIncome)
+                        BusinessStatItem(label = "SAVINGS", value = "KES ${user.totalSavings}", color = BizIncome)
                     }
                 }
             }
@@ -257,15 +264,93 @@ fun SummarySmallCard(modifier: Modifier, label: String, value: String, color: Co
 }
 
 @Composable
+fun ProfitCalculatorSection() {
+    var itemName by remember { mutableStateOf("") }
+    var quantity by remember { mutableStateOf("") }
+    var buyingPrice by remember { mutableStateOf("") }
+    var sellingPrice by remember { mutableStateOf("") }
+
+    val q = quantity.toDoubleOrNull() ?: 0.0
+    val bp = buyingPrice.toDoubleOrNull() ?: 0.0
+    val sp = sellingPrice.toDoubleOrNull() ?: 0.0
+
+    val totalBuying = q * bp
+    val totalSelling = q * sp
+    val profit = totalSelling - totalBuying
+
+    Card(
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 8.dp),
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    ) {
+        Column(modifier = Modifier.padding(20.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text("📈", fontSize = 20.sp)
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("Profit Calculator", fontWeight = FontWeight.Bold, fontSize = 18.sp)
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            PesaInput(value = itemName, onValueChange = { itemName = it }, label = "Item Name", placeholder = "e.g. Bread")
+            Spacer(modifier = Modifier.height(12.dp))
+            
+            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                Box(modifier = Modifier.weight(1f)) {
+                    PesaInput(value = quantity, onValueChange = { quantity = it }, label = "Qty", placeholder = "0", keyboardType = KeyboardType.Number)
+                }
+                Box(modifier = Modifier.weight(1f)) {
+                    PesaInput(value = buyingPrice, onValueChange = { buyingPrice = it }, label = "BP", placeholder = "0", keyboardType = KeyboardType.Number)
+                }
+                Box(modifier = Modifier.weight(1f)) {
+                    PesaInput(value = sellingPrice, onValueChange = { sellingPrice = it }, label = "SP", placeholder = "0", keyboardType = KeyboardType.Number)
+                }
+            }
+            
+            Spacer(modifier = Modifier.height(20.dp))
+            HorizontalDivider(color = SoftGray)
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.Bottom) {
+                Column {
+                    Text("Total Profit/Loss", color = Color.Gray, fontSize = 12.sp)
+                    Text(
+                        text = "KES ${"%,.0f".format(profit)}",
+                        color = if (profit >= 0) BizIncome else BizExpense,
+                        fontWeight = FontWeight.Black,
+                        fontSize = 24.sp
+                    )
+                }
+                if (profit != 0.0) {
+                    val margin = if (totalSelling > 0) (profit / totalSelling * 100).toInt() else 0
+                    Surface(
+                        color = (if (profit >= 0) BizIncome else BizExpense).copy(alpha = 0.1f),
+                        shape = RoundedCornerShape(8.dp)
+                    ) {
+                        Text(
+                            text = if (profit > 0) "+$margin% Margin" else "$margin% Margin",
+                            color = if (profit >= 0) BizIncome else BizExpense,
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 12.sp
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
 fun BusinessQuickActionsSection(navController: NavHostController) {
     Column(modifier = Modifier.padding(horizontal = 24.dp)) {
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
             BusinessActionCard(
                 modifier = Modifier.weight(1f),
                 icon = Icons.Default.ShoppingCart,
-                label = "Record Sale",
+                label = "Inventory/Sales",
                 iconColor = Color(0xFFFFE0B2),
-                onClick = { navController.navigate(ROUTE_ADD_INCOME) }
+                onClick = { navController.navigate(ROUTE_SALES) }
             )
             BusinessActionCard(
                 modifier = Modifier.weight(1f),
@@ -279,18 +364,29 @@ fun BusinessQuickActionsSection(navController: NavHostController) {
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
             BusinessActionCard(
                 modifier = Modifier.weight(1f),
+                icon = Icons.Default.Star, // Changed to Star or something for Income
+                label = "Add Income",
+                iconColor = Color(0xFFC8E6C9),
+                onClick = { navController.navigate(ROUTE_ADD_INCOME) }
+            )
+            BusinessActionCard(
+                modifier = Modifier.weight(1f),
                 icon = Icons.AutoMirrored.Filled.List,
                 label = "P&L Report",
                 iconColor = Color(0xFFE1F5FE),
                 onClick = { navController.navigate(ROUTE_REPORTS) }
             )
+        }
+        Spacer(modifier = Modifier.height(16.dp))
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
             BusinessActionCard(
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.weight(0.5f),
                 icon = Icons.Default.Star,
                 label = "Biz Goals",
                 iconColor = Color(0xFFFFEBEE),
                 onClick = { navController.navigate(ROUTE_GOALS) }
             )
+            Spacer(modifier = Modifier.weight(0.5f))
         }
     }
 }
@@ -329,7 +425,12 @@ fun BusinessActionCard(
 }
 
 @Composable
-fun CustomersOweSection(debts: List<CustomerDebt>) {
+fun CustomersOweSection(debts: List<CustomerDebt>, onAddDebt: (String, Double, String) -> Unit) {
+    var showForm by remember { mutableStateOf(false) }
+    var customerName by remember { mutableStateOf("") }
+    var amount by remember { mutableStateOf("") }
+    var dueDate by remember { mutableStateOf("") }
+
     Column(modifier = Modifier.padding(24.dp)) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -341,9 +442,37 @@ fun CustomersOweSection(debts: List<CustomerDebt>) {
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(text = "Customers Owe You", fontSize = 18.sp, fontWeight = FontWeight.Bold)
             }
-            Text(text = "KES ${debts.sumOf { it.amount }}", color = BizAccent, fontWeight = FontWeight.Bold)
+            IconButton(onClick = { showForm = !showForm }) {
+                Text(if (showForm) "✕" else "＋", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = BizAccent)
+            }
         }
-        Spacer(modifier = Modifier.height(16.dp))
+
+        if (showForm) {
+            PesaCard(modifier = Modifier.padding(vertical = 12.dp)) {
+                Text("RECORD NEW DEBT", fontWeight = FontWeight.Bold, fontSize = 12.sp, color = BizAccent)
+                Spacer(Modifier.height(16.dp))
+                PesaInput(customerName, { customerName = it }, "Customer Name", "e.g. Mary Atieno")
+                Spacer(Modifier.height(12.dp))
+                PesaInput(amount, { amount = it }, "Amount Owed", "0", keyboardType = KeyboardType.Number)
+                Spacer(Modifier.height(12.dp))
+                PesaInput(dueDate, { dueDate = it }, "Due Date", "e.g. May 15")
+                Spacer(Modifier.height(20.dp))
+                PesaButton("Save Debt", color = BizAccent, enabled = customerName.isNotEmpty() && amount.isNotEmpty()) {
+                    onAddDebt(customerName, amount.toDoubleOrNull() ?: 0.0, dueDate)
+                    customerName = ""; amount = ""; dueDate = ""; showForm = false
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(
+            text = "Total: KES ${debts.sumOf { it.amount }}",
+            color = BizAccent,
+            fontWeight = FontWeight.Bold,
+            fontSize = 14.sp,
+            modifier = Modifier.padding(bottom = 12.dp)
+        )
+
         debts.forEach { debt ->
             CustomerOweItem(debt.name, "Due: ${debt.due}", "KES ${debt.amount}")
         }

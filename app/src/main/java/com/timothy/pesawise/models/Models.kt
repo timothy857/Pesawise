@@ -78,6 +78,16 @@ data class Bill(val name: String, val amount: Double, val due: String)
 // ── Customer Debt ─────────────────────────────────────────
 data class CustomerDebt(val name: String, val amount: Double, val due: String)
 
+// ── Business Sale Record ──────────────────────────────────
+data class BusinessSale(
+    val id: Long = System.currentTimeMillis(),
+    val itemName: String,
+    val quantity: Int,
+    val buyingPrice: Double,
+    val sellingPrice: Double,
+    val date: String = ""
+)
+
 // ── Pie chart entry ───────────────────────────────────────
 data class PieEntry(val name: String, val value: Double)
 
@@ -103,6 +113,7 @@ data class User(
     val balance: Double = 0.0,
     val income: Double = 0.0,
     val expenses: Double = 0.0,
+    val totalSavings: Double = 0.0,
 
     // transactions & goals
     val transactions: List<Transaction> = emptyList(),
@@ -121,6 +132,7 @@ data class User(
     val todayExpenses: Double = 0.0,
     val stockValue: Double = 0.0,
     val customerDebts: List<CustomerDebt> = emptyList(),
+    val businessSales: List<BusinessSale> = emptyList(),
 
     // Student extras
     val semesterBudget: Double = 0.0,

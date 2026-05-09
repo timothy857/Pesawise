@@ -17,6 +17,7 @@ import com.timothy.pesawise.viewmodel.AppViewModel
 @Composable
 fun AddIncomeScreen(user: User, vm: AppViewModel, accentColor: Color, onBack: () -> Unit, onSaved: () -> Unit) {
     var amount   by remember { mutableStateOf("") }
+    var savingsAmount by remember { mutableStateOf("") }
     var category by remember { mutableStateOf("Salary") }
     var note     by remember { mutableStateOf("") }
 
@@ -29,7 +30,12 @@ fun AddIncomeScreen(user: User, vm: AppViewModel, accentColor: Color, onBack: ()
             Spacer(Modifier.height(8.dp))
             OutlinedTextField(
                 value = amount,
-                onValueChange = { amount = it },
+                onValueChange = { 
+                    amount = it 
+                    // Auto-calculate 10% savings
+                    val amt = it.toDoubleOrNull() ?: 0.0
+                    savingsAmount = (amt * 0.1).toInt().toString()
+                },
                 textStyle = LocalTextStyle.current.copy(fontSize = 32.sp, fontWeight = FontWeight.Black, color = Color.White),
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp),
@@ -37,19 +43,31 @@ fun AddIncomeScreen(user: User, vm: AppViewModel, accentColor: Color, onBack: ()
                     focusedBorderColor = Color.White.copy(alpha = 0.5f),
                     unfocusedBorderColor = Color.White.copy(alpha = 0.3f),
                     cursorColor = Color.White
+                ),
+                keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(
+                    keyboardType = androidx.compose.ui.text.input.KeyboardType.Number
                 )
             )
         }
 
         Column(modifier = Modifier.fillMaxSize().padding(20.dp), verticalArrangement = Arrangement.spacedBy(20.dp)) {
+            PesaInput(
+                value = savingsAmount, 
+                onValueChange = { savingsAmount = it }, 
+                label = "Amount to Save (10% set by default)", 
+                placeholder = "0",
+                keyboardType = androidx.compose.ui.text.input.KeyboardType.Number
+            )
+            
             PesaInput(category, { category = it }, "Source", "e.g. Freelance, Gift")
             PesaInput(note,     { note = it },     "Note",   "Additional details")
 
             Spacer(Modifier.height(10.dp))
             PesaButton("💰 Save Income", color = accentColor, onClick = {
                 val amt = amount.toDoubleOrNull()
+                val sav = savingsAmount.toDoubleOrNull() ?: 0.0
                 if (amt != null && amt > 0) {
-                    vm.addIncome(amt, category, note, "💰")
+                    vm.addIncome(amt, category, note, "💰", sav)
                     onSaved()
                 }
             })

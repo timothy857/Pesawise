@@ -189,7 +189,7 @@ fun StudentHeaderSection(user: User) {
                         horizontalArrangement = Arrangement.SpaceAround
                     ) {
                         StudentStatItem(label = "SPENT TODAY", value = "KES 180", color = StudentAccent)
-                        StudentStatItem(label = "SAVED", value = "KES 1,200", color = StudentHighlight)
+                        StudentStatItem(label = "SAVINGS", value = "KES ${user.totalSavings}", color = StudentHighlight)
                     }
                 }
             }
@@ -241,24 +241,46 @@ fun SemesterBudgetSection(total: Double, spent: Double) {
 
 @Composable
 fun StudentQuickActionsSection(navController: NavHostController) {
-    Row(
-        modifier = Modifier.padding(horizontal = 24.dp).fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        StudentActionCard(
-            Modifier.weight(1f), 
-            "Add Expense", 
-            "💸", 
-            StudentAccent,
-            onClick = { navController.navigate(ROUTE_ADD_EXPENSE) }
-        )
-        StudentActionCard(
-            Modifier.weight(1f), 
-            "Savings Challenge", 
-            "🎯", 
-            StudentHighlight,
-            onClick = { navController.navigate(ROUTE_GOALS) }
-        )
+    Column(modifier = Modifier.padding(horizontal = 24.dp)) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            StudentActionCard(
+                Modifier.weight(1f),
+                "Add Expense",
+                "💸",
+                StudentAccent,
+                onClick = { navController.navigate(ROUTE_ADD_EXPENSE) }
+            )
+            StudentActionCard(
+                Modifier.weight(1f),
+                "Add Income",
+                "💰",
+                StudentHighlight,
+                onClick = { navController.navigate(ROUTE_ADD_INCOME) }
+            )
+        }
+        Spacer(modifier = Modifier.height(16.dp))
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            StudentActionCard(
+                Modifier.weight(1f),
+                "Savings Goals",
+                "🎯",
+                StudentAccent,
+                onClick = { navController.navigate(ROUTE_GOALS) }
+            )
+            StudentActionCard(
+                Modifier.weight(1f),
+                "Reports",
+                "📊",
+                StudentHighlight,
+                onClick = { navController.navigate(ROUTE_REPORTS) }
+            )
+        }
     }
 }
 
@@ -267,16 +289,25 @@ fun StudentActionCard(modifier: Modifier, label: String, emoji: String, color: C
     Card(
         modifier = modifier.height(100.dp).clickable { onClick() },
         shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White)
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column(
             modifier = Modifier.fillMaxSize().padding(16.dp),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(text = emoji, fontSize = 28.sp)
+            Surface(
+                modifier = Modifier.size(42.dp),
+                shape = RoundedCornerShape(12.dp),
+                color = color.copy(alpha = 0.1f)
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    Text(text = emoji, fontSize = 22.sp)
+                }
+            }
             Spacer(modifier = Modifier.height(8.dp))
-            Text(text = label, fontSize = 12.sp, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center)
+            Text(text = label, fontSize = 11.sp, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center)
         }
     }
 }

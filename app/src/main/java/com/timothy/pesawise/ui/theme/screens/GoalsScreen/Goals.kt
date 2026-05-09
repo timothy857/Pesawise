@@ -13,22 +13,33 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.timothy.pesawise.models.Goal
 import com.timothy.pesawise.models.User
 import com.timothy.pesawise.ui.components.*
 import com.timothy.pesawise.ui.theme.DarkBg
 import com.timothy.pesawise.ui.theme.MutedGray
 import com.timothy.pesawise.ui.theme.SoftGray
+import com.timothy.pesawise.viewmodel.AppViewModel
+import androidx.compose.ui.graphics.toArgb
 
 @Composable
 fun GoalsScreen(
     user: User,
     accentColor: Color,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    vm: AppViewModel = viewModel()
 ) {
     var showForm by remember { mutableStateOf(false) }
+
+    // Form fields
+    var title by remember { mutableStateOf("") }
+    var target by remember { mutableStateOf("") }
+    var deadline by remember { mutableStateOf("") }
+    var icon by remember { mutableStateOf("🎯") }
 
     Column(
         modifier = Modifier
@@ -79,7 +90,7 @@ fun GoalsScreen(
                         shape = RoundedCornerShape(12.dp),
                         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
                     ) {
-                        Text("+ New", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                        Text(if (showForm) "Cancel" else "+ New", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 14.sp)
                     }
                 }
             }
@@ -88,10 +99,40 @@ fun GoalsScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(20.dp)
+                .padding(horizontal = 20.dp)
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
+            Spacer(modifier = Modifier.height(10.dp))
+
+            if (showForm) {
+                PesaCard {
+                    Text("CREATE NEW GOAL", fontWeight = FontWeight.Bold, fontSize = 12.sp, color = accentColor)
+                    Spacer(Modifier.height(16.dp))
+                    
+                    PesaInput(value = title, onValueChange = { title = it }, label = "Goal Title", placeholder = "e.g. Dream Vacation")
+                    Spacer(Modifier.height(12.dp))
+                    
+                    PesaInput(value = target, onValueChange = { target = it }, label = "Target Amount", placeholder = "e.g. 150000", keyboardType = KeyboardType.Number)
+                    Spacer(Modifier.height(12.dp))
+                    
+                    PesaInput(value = deadline, onValueChange = { deadline = it }, label = "Target Date", placeholder = "e.g. Dec 2025")
+                    Spacer(Modifier.height(20.dp))
+                    
+                    PesaButton(label = "Save Goal", color = accentColor, enabled = title.isNotEmpty() && target.isNotEmpty()) {
+                        vm.addGoal(
+                            title = title,
+                            target = target.toDoubleOrNull() ?: 0.0,
+                            icon = icon,
+                            colorHex = String.format("#%06X", (0xFFFFFF and accentColor.toArgb())),
+                            deadline = deadline
+                        )
+                        showForm = false
+                        title = ""; target = ""; deadline = ""
+                    }
+                }
+            }
+
             if (user.goals.isEmpty()) {
                 Box(
                     modifier = Modifier.fillMaxWidth().padding(top = 100.dp),
@@ -101,7 +142,7 @@ fun GoalsScreen(
                 }
             } else {
                 user.goals.forEach { goal ->
-                    GoalItemCard(goal)
+                    GoalItemCard(goal, onDelete = { vm.deleteGoal(it) })
                 }
             }
             
@@ -111,7 +152,7 @@ fun GoalsScreen(
 }
 
 @Composable
-fun GoalItemCard(goal: Goal) {
+fun GoalItemCard(goal: Goal, onDelete: (Int) -> Unit) {
     val pct = ((goal.saved / goal.target) * 100).toInt().coerceIn(0, 100)
     val goalColor = try { Color(android.graphics.Color.parseColor(goal.colorHex)) } catch (e: Exception) { Color.Gray }
 
@@ -148,6 +189,12 @@ fun GoalItemCard(goal: Goal) {
                     fontSize = 12.sp,
                     modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
                 )
+            }
+            
+            Spacer(Modifier.width(8.dp))
+
+            IconButton(onClick = { onDelete(goal.id) }, modifier = Modifier.size(24.dp)) {
+                Text("🗑️", fontSize = 16.sp)
             }
         }
         

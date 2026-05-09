@@ -38,7 +38,7 @@ val DashboardExpense = ErrorRed
 val DashboardBackground = SoftGray
 
 val dummyUser = User(
-    name = "Alex Wanjiku",
+    fullname = "Alex Wanjiku",
     email = "alex@example.com",
     password = "password",
     type = AccountType.Salaried,
@@ -151,7 +151,7 @@ fun HeaderSection(user: User) {
                         fontWeight = FontWeight.Bold
                     )
                     Text(
-                        text = user.name,
+                        text = user.fullname,
                         color = Color.White,
                         fontSize = 24.sp,
                         fontWeight = FontWeight.ExtraBold

@@ -51,7 +51,7 @@ fun HistoryScreen(user: User, accentColor: Color, startColor: Color, endColor: C
 @Composable
 fun ProfileScreen(user: User, vm: AppViewModel, accentColor: Color, startColor: Color, endColor: Color, onBack: () -> Unit, onLogout: () -> Unit) {
     var isEditing by remember { mutableStateOf(false) }
-    var name by remember { mutableStateOf(user.name) }
+    var name by remember { mutableStateOf(user.fullname) }
     var email by remember { mutableStateOf(user.email) }
     var phone by remember { mutableStateOf(user.phone) }
 
@@ -67,7 +67,7 @@ fun ProfileScreen(user: User, vm: AppViewModel, accentColor: Color, startColor: 
                         modifier = Modifier.clickable {
                             if (isEditing) {
                                 // Reset fields on cancel
-                                name = user.name
+                                name = user.fullname
                                 email = user.email
                                 phone = user.phone
                             }

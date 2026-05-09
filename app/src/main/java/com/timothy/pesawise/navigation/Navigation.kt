@@ -44,7 +44,7 @@ import com.timothy.pesawise.ui.theme.screens.Maindashboard.AddIncomeScreen
 import com.timothy.pesawise.ui.theme.screens.ReportsScreen.ReportsScreen
 import com.timothy.pesawise.ui.theme.screens.GoalsScreen.GoalsScreen
 import com.timothy.pesawise.ui.theme.screens.Maindashboard.HistoryScreen
-import com.timothy.pesawise.ui.theme.screens.Maindashboard.ProfileScreen
+import com.timothy.pesawise.ui.theme.screens.ProfileScreen.ProfileScreen
 import com.timothy.pesawise.ui.theme.screens.Maindashboard.SalesScreen
 import com.timothy.pesawise.viewmodel.AppViewModel
 import kotlinx.coroutines.delay

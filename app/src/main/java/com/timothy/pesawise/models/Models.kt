@@ -1,5 +1,7 @@
 package com.timothy.pesawise.models
 
+import com.google.firebase.firestore.IgnoreExtraProperties
+
 // ── Account types ─────────────────────────────────────────
 enum class AccountType { Salaried, Business, Student }
 
@@ -51,63 +53,90 @@ val THEMES = mapOf(
 // ── Transaction ────────────────────────────────────────────
 enum class TransactionType { Income, Expense }
 
+@IgnoreExtraProperties
 data class Transaction(
     val id: Long = System.currentTimeMillis(),
-    val type: TransactionType,
-    val amount: Double,
-    val category: String,
+    val type: TransactionType = TransactionType.Expense,
+    val amount: Double = 0.0,
+    val category: String = "",
     val note: String = "",
     val date: String = "",
     val icon: String = "💰"
 )
 
 // ── Goal ──────────────────────────────────────────────────
+@IgnoreExtraProperties
 data class Goal(
-    val id: Int,
-    val title: String,
-    val target: Double,
-    val saved: Double,
-    val icon: String,
-    val colorHex: String,
-    val deadline: String
+    val id: Int = 0,
+    val title: String = "",
+    val target: Double = 0.0,
+    val saved: Double = 0.0,
+    val icon: String = "",
+    val colorHex: String = "",
+    val deadline: String = ""
 )
 
 // ── Bill ──────────────────────────────────────────────────
-data class Bill(val name: String, val amount: Double, val due: String)
+data class Bill(
+    val name: String = "",
+    val amount: Double = 0.0,
+    val due: String = ""
+)
 
 // ── Customer Debt ─────────────────────────────────────────
-data class CustomerDebt(val name: String, val amount: Double, val due: String)
+data class CustomerDebt(
+    val name: String = "",
+    val amount: Double = 0.0,
+    val due: String = ""
+)
 
 // ── Business Sale Record ──────────────────────────────────
+@IgnoreExtraProperties
 data class BusinessSale(
     val id: Long = System.currentTimeMillis(),
-    val itemName: String,
-    val quantity: Int,
-    val buyingPrice: Double,
-    val sellingPrice: Double,
+    val itemName: String = "",
+    val quantity: Int = 0,
+    val buyingPrice: Double = 0.0,
+    val sellingPrice: Double = 0.0,
     val date: String = ""
 )
 
 // ── Pie chart entry ───────────────────────────────────────
-data class PieEntry(val name: String, val value: Double)
+data class PieEntry(
+    val name: String = "",
+    val value: Double = 0.0
+)
 
 // ── Monthly chart entry ───────────────────────────────────
-data class MonthlyEntry(val month: String, val income: Double, val expense: Double)
+data class MonthlyEntry(
+    val month: String = "",
+    val income: Double = 0.0,
+    val expense: Double = 0.0
+)
 
 // ── Save Challenge (Student) ──────────────────────────────
-data class SaveChallenge(val current: Int, val target: Int, val perDay: Double)
+data class SaveChallenge(
+    val current: Int = 0,
+    val target: Int = 0,
+    val perDay: Double = 0.0
+)
 
 // ── Meal Budget (Student) ─────────────────────────────────
-data class MealBudget(val daily: Double, val spent: Double, val days: Int)
+data class MealBudget(
+    val daily: Double = 0.0,
+    val spent: Double = 0.0,
+    val days: Int = 0
+)
 
-// ── Main User ─────────────────────────────────────────────
+// ── Student Model ──────────────────────────────────────────
+@IgnoreExtraProperties
 data class User(
-    val id: Long = System.currentTimeMillis(),
-    val name: String,
-    val email: String,
+    val userid: String = "",
+    val fullname: String = "",
+    val email: String = "",
     val phone: String = "",
-    val password: String,
-    val type: AccountType,
+    val password: String = "",
+    val type: AccountType = AccountType.Salaried,
 
     // financials
     val balance: Double = 0.0,
@@ -141,8 +170,27 @@ data class User(
     val mealBudget: MealBudget = MealBudget(300.0, 0.0, 1)
 )
 
+@IgnoreExtraProperties
+data class Student(
+    val userid: String = "",
+    val fullname: String = "",
+    val email: String = "",
+    val balance: Double = 0.0,
+    val income: Double = 0.0,
+    val expenses: Double = 0.0,
+    val totalSavings: Double = 0.0,
+    val semesterBudget: Double = 0.0,
+    val semesterSpent: Double = 0.0,
+    val mealBudget: MealBudget = MealBudget(300.0, 0.0, 1),
+    val saveChallenge: SaveChallenge = SaveChallenge(0, 30, 50.0),
+    val transactions: List<Transaction> = emptyList()
+)
+
 // ── Expense categories ────────────────────────────────────
-data class Category(val name: String, val icon: String)
+data class Category(
+    val name: String = "",
+    val icon: String = ""
+)
 
 val EXPENSE_CATEGORIES = listOf(
     Category("Food",          "🍽️"),

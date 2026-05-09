@@ -1,17 +1,25 @@
 package com.timothy.pesawise.viewmodel
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.SetOptions
 import com.timothy.pesawise.models.*
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
 
 class AppViewModel : ViewModel() {
 
-    private val _accounts = MutableStateFlow<List<User>>(emptyList())
+    private val auth = FirebaseAuth.getInstance()
+    private val db = FirebaseFirestore.getInstance()
+
     private val _currentUser = MutableStateFlow<User?>(null)
     val currentUser: StateFlow<User?> = _currentUser.asStateFlow()
 
@@ -19,27 +27,6 @@ class AppViewModel : ViewModel() {
     val toastMsg: StateFlow<String?> = _toastMsg.asStateFlow()
 
     fun clearToast() { _toastMsg.value = null }
-
-    fun login(email: String, password: String): Boolean {
-        val user = _accounts.value.find {
-            it.email.equals(email.trim(), ignoreCase = true) && it.password == password
-        }
-        return if (user != null) { _currentUser.value = user; true } else false
-    }
-
-    fun register(name: String, email: String, phone: String, password: String, type: AccountType): Boolean {
-        if (_accounts.value.any { it.email.equals(email, ignoreCase = true) }) return false
-        val newUser = User(
-            id = System.currentTimeMillis(), name = name.trim(),
-            email = email.trim(), phone = phone.trim(), password = password, type = type
-        )
-        _accounts.update { (it + newUser).toMutableList() }
-        _currentUser.value = newUser
-        _toastMsg.value = "🎉 Welcome, ${newUser.name}! Account created."
-        return true
-    }
-
-    fun logout() { _currentUser.value = null }
 
     fun setCurrentUser(user: User) {
         _currentUser.value = user
@@ -49,12 +36,28 @@ class AppViewModel : ViewModel() {
         _currentUser.update { user ->
             user?.let {
                 val updated = transform(it)
-                _accounts.update { list ->
-                    list.map { acc -> if (acc.id == updated.id) updated else acc }.toMutableList()
-                }
+                saveUserToFirestore(updated)
                 updated
             }
         }
+    }
+
+    private fun saveUserToFirestore(user: User) {
+        val uid = auth.currentUser?.uid ?: return
+        viewModelScope.launch(Dispatchers.IO) {
+            db.collection("users").document(uid)
+                .set(user, SetOptions.merge())
+                .addOnFailureListener {
+                    viewModelScope.launch(Dispatchers.Main) {
+                        _toastMsg.value = "❌ Sync failed: ${it.message}"
+                    }
+                }
+        }
+    }
+
+    fun logout() {
+        auth.signOut()
+        _currentUser.value = null
     }
 
     fun addExpense(amount: Double, category: String, note: String, date: String, icon: String) {
@@ -100,7 +103,6 @@ class AppViewModel : ViewModel() {
         _toastMsg.value = msg
     }
 
-    fun getAccounts(): List<User> = _accounts.value
     fun getSavingsRate(u: User): Int = if (u.income == 0.0) 0 else ((u.income - u.expenses) / u.income * 100).toInt().coerceIn(0,100)
     fun getDaysMoneyLasts(u: User): Int { val d = u.expenses / 30.0; return if (d == 0.0) 0 else (u.balance / d).toInt() }
     fun getProfit(u: User): Double = u.income - u.expenses
@@ -130,9 +132,9 @@ class AppViewModel : ViewModel() {
         _toastMsg.value = "🗑️ Goal deleted."
     }
 
-    fun updateProfile(name: String, email: String, phone: String) {
+    fun updateProfile(fullname: String, email: String, phone: String) {
         mutateUser { u ->
-            u.copy(name = name, email = email, phone = phone)
+            u.copy(fullname = fullname, email = email, phone = phone)
         }
         _toastMsg.value = "👤 Profile updated successfully!"
     }

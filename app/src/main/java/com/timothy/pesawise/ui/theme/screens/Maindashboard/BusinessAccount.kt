@@ -40,7 +40,7 @@ val BizIncome = SuccessGreen
 val BizBackground = SoftGray
 
 val dummyBusinessUser = User(
-    name = "John Kamau",
+    fullname = "John Kamau",
     email = "john@example.com",
     password = "password",
     type = AccountType.Business,
@@ -160,7 +160,7 @@ fun BusinessHeaderSection(user: User) {
                         fontWeight = FontWeight.Bold
                     )
                     Text(
-                        text = user.name,
+                        text = user.fullname,
                         color = Color.White,
                         fontSize = 24.sp,
                         fontWeight = FontWeight.ExtraBold

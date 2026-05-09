@@ -40,7 +40,7 @@ val StudentHighlight = GoldAccent
 val StudentBackground = SoftGray
 
 val dummyStudentUser = User(
-    name = "Faith Mutua",
+    fullname = "Faith Mutua",
     email = "faith@example.com",
     password = "password",
     type = AccountType.Student,
@@ -138,7 +138,7 @@ fun StudentHeaderSection(user: User) {
                         fontWeight = FontWeight.Bold
                     )
                     Text(
-                        text = user.name,
+                        text = user.fullname,
                         color = Color.White,
                         fontSize = 24.sp,
                         fontWeight = FontWeight.ExtraBold

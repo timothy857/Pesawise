@@ -119,7 +119,7 @@ fun SalaryEarnerAccount(
             item { BillsDueSoonSection(user.bills) }
             item { LoanTrackerSection(user.loanBalance, user.loanMonthly) }
             item { AIInsightSection() }
-            item { RecentTransactionsSection(user.transactions) }
+            item { RecentTransactionsSection(navController, user.transactions) }
             item { Spacer(modifier = Modifier.height(100.dp)) }
         }
     }
@@ -440,7 +440,7 @@ fun AIInsightSection() {
 }
 
 @Composable
-fun RecentTransactionsSection(transactions: List<Transaction>) {
+fun RecentTransactionsSection(navController: NavHostController, transactions: List<Transaction>) {
     Column(modifier = Modifier.padding(horizontal = 24.dp)) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -448,7 +448,13 @@ fun RecentTransactionsSection(transactions: List<Transaction>) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(text = "Recent Transactions", fontSize = 18.sp, fontWeight = FontWeight.Bold)
-            Text(text = "See All →", color = DashboardIncome, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+            Text(
+                text = "See All →",
+                color = DashboardIncome,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.clickable { navController.navigate(ROUTE_HISTORY) }
+            )
         }
         Spacer(modifier = Modifier.height(16.dp))
         transactions.forEach { transaction ->

@@ -43,7 +43,7 @@ import com.timothy.pesawise.ui.theme.screens.AddExpense.AddExpencesScreen
 import com.timothy.pesawise.ui.theme.screens.Maindashboard.AddIncomeScreen
 import com.timothy.pesawise.ui.theme.screens.ReportsScreen.ReportsScreen
 import com.timothy.pesawise.ui.theme.screens.GoalsScreen.GoalsScreen
-import com.timothy.pesawise.ui.theme.screens.Maindashboard.HistoryScreen
+import com.timothy.pesawise.ui.theme.screens.HistoryScreen.HistoryScreen
 import com.timothy.pesawise.ui.theme.screens.ProfileScreen.ProfileScreen
 import com.timothy.pesawise.ui.theme.screens.SettingsScreen.SettingsScreen
 import com.timothy.pesawise.ui.theme.screens.Maindashboard.SalesScreen

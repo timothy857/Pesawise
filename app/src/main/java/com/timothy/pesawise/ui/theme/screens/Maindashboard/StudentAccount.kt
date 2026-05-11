@@ -106,7 +106,7 @@ fun StudentAccount(
             item { MealBudgetSection(user.mealBudget) }
             item { SaveChallengeSection(user.saveChallenge) }
             item { StudentInsightSection() }
-            item { StudentRecentActivitySection(user.transactions) }
+            item { StudentRecentActivitySection(navController, user.transactions) }
             item { Spacer(modifier = Modifier.height(100.dp)) }
         }
     }
@@ -407,7 +407,7 @@ fun StudentInsightSection() {
 }
 
 @Composable
-fun StudentRecentActivitySection(transactions: List<Transaction>) {
+fun StudentRecentActivitySection(navController: NavHostController, transactions: List<Transaction>) {
     Column(modifier = Modifier.padding(horizontal = 24.dp)) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -424,7 +424,8 @@ fun StudentRecentActivitySection(transactions: List<Transaction>) {
                 text = "See All →",
                 color = StudentAccent,
                 fontSize = 14.sp,
-                fontWeight = FontWeight.SemiBold
+                fontWeight = FontWeight.SemiBold,
+                modifier = Modifier.clickable { navController.navigate(ROUTE_HISTORY) }
             )
         }
         Spacer(modifier = Modifier.height(16.dp))

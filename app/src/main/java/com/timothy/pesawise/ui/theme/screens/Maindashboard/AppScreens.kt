@@ -24,28 +24,6 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 // ─────────────────────────────────────────────────────────
-//  HISTORY SCREEN
-// ─────────────────────────────────────────────────────────
-@Composable
-fun HistoryScreen(user: User, accentColor: Color, startColor: Color, endColor: Color, onBack: () -> Unit) {
-    Column(modifier = Modifier.fillMaxSize().background(Color(0xFFF4F7F5))) {
-        GradientHeader(startColor, endColor) {
-            BackButton(onBack)
-            Text("📜 Transaction History", fontSize = 22.sp, fontWeight = FontWeight.ExtraBold, color = Color.White)
-        }
-        Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(18.dp)) {
-            if (user.transactions.isEmpty()) {
-                Box(modifier = Modifier.fillMaxSize().padding(top = 100.dp), contentAlignment = Alignment.Center) {
-                    Text("No transactions yet.", color = MutedGray)
-                }
-            } else {
-                user.transactions.forEach { TransactionRow(it, accentColor) }
-            }
-        }
-    }
-}
-
-// ─────────────────────────────────────────────────────────
 //  PROFILE SCREEN
 // ─────────────────────────────────────────────────────────
 @Composable
